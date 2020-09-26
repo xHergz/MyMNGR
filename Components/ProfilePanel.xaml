@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="MyMNGR.Components.ProfilePanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MyMNGR.Components"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="350">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25px" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Content="Profile Information" HorizontalAlignment="Center" FontWeight="Bold"/>
+        <Label Grid.Row="1" Grid.Column="1" Content="Profile Name:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="1" Grid.Column="2" Height="24" Name="_profileNameTextBox" VerticalContentAlignment="Center"/>
+        <Label Grid.Row="2" Grid.Column="1" Content="Dev Alias:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="2" Grid.Column="2" Height="24" Name="_devAliasTextBox"/>
+        <Label Grid.Row="3" Grid.Column="1" Content="Prod Alias:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="3" Grid.Column="2" Height="24" Name="_prodAliasTextBox"/>
+        <Label Grid.Row="4" Grid.Column="1" Content="Folder:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="4" Grid.Column="2" Height="24" Name="_folderTextBox" Margin="0 0 24 0"/>
+        <Button Grid.Row="4" Grid.Column="2" Height="24" Width="24" HorizontalAlignment="Right" Content=">" Click="BrowseFolders_Click"/>
+        <Button Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Height="24" Width="75" HorizontalAlignment="Left" Margin="20 0 0 0" Content="Cancel" Click="Cancel_Click"/>
+        <Button Grid.Row="6" Grid.Column="2" Height="24" Width="75" HorizontalAlignment="Right" Margin="0 0 20 0" Content="Save" Click="Save_Click"/>
+    </Grid>
+</UserControl>
