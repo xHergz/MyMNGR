@@ -26,6 +26,8 @@ namespace MyMNGR
     {
         private ConsoleManager _consoleManager;
 
+        private MySqlManager _mySqlManager;
+
         private SettingsManager _settingsManager;
 
         private ProfilePanel _profilePanel;
@@ -40,8 +42,6 @@ namespace MyMNGR
             _profilePanel = new ProfilePanel();
             _profilePanel.Cancel += ProfilePanel_Cancel;
             _profilePanel.Save += ProfilePanel_Save;
-            _profilePanel.Width = 350;
-            _profilePanel.Height = 250;
         }
 
         private void CloseVisiblePanel()
@@ -75,6 +75,7 @@ namespace MyMNGR
                 if (_settingsManager.LoadProfile(openFileDialog.FileName))
                 {
                     _consoleManager.LogMessage($"Successfully loaded profile from {openFileDialog.FileName}");
+                    _mySqlManager = new MySqlManager(_settingsManager.CurrentProfile, Target.Development);
                 }
                 else
                 {
@@ -100,6 +101,11 @@ namespace MyMNGR
                 _consoleManager.LogMessage($"Failed to save a profile for '{newProfile.Name}'");
             }
             CloseVisiblePanel();
+        }
+
+        private void DeployButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mySqlManager.DeployDatabase();
         }
     }
 }

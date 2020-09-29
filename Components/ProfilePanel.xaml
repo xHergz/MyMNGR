@@ -5,11 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MyMNGR.Components"
              mc:Ignorable="d" 
-             d:DesignHeight="250" d:DesignWidth="350">
+             d:DesignHeight="250" d:DesignWidth="500">
     <Grid Background="White">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10" />
-            <ColumnDefinition Width="80" />
+            <ColumnDefinition Width="100" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="10" />
         </Grid.ColumnDefinitions>
@@ -32,6 +32,8 @@
         <Label Grid.Row="4" Grid.Column="1" Content="Folder:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
         <TextBox Grid.Row="4" Grid.Column="2" Height="24" Name="_folderTextBox" Margin="0 0 24 0"/>
         <Button Grid.Row="4" Grid.Column="2" Height="24" Width="24" HorizontalAlignment="Right" Content=">" Click="BrowseFolders_Click"/>
+        <Label Grid.Row="5" Grid.Column="1" Content="Database Name:"  VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        <TextBox Grid.Row="5" Grid.Column="2" Height="24" Name="_databaseNameTextBox"/>
         <Button Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" Height="24" Width="75" HorizontalAlignment="Left" Margin="20 0 0 0" Content="Cancel" Click="Cancel_Click"/>
         <Button Grid.Row="6" Grid.Column="2" Height="24" Width="75" HorizontalAlignment="Right" Margin="0 0 20 0" Content="Save" Click="Save_Click"/>
     </Grid>

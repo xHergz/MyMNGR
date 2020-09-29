@@ -20,6 +20,8 @@ namespace MyMNGR.Components
         public ProfilePanel()
         {
             InitializeComponent();
+            Width = 500;
+            Height = 250;
         }
 
         public void FillInFields(Profile profile)

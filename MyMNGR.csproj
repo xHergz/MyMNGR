@@ -68,9 +68,12 @@
     <Compile Include="Components\ProfilePanel.xaml.cs">
       <DependentUpon>ProfilePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data\ProcessResult.cs" />
     <Compile Include="Data\Profile.cs" />
     <Compile Include="Data\Settings.cs" />
+    <Compile Include="Data\Target.cs" />
     <Compile Include="Utils\ConsoleManager.cs" />
+    <Compile Include="Utils\MySqlManager.cs" />
     <Compile Include="Utils\SettingsManager.cs" />
     <Page Include="Components\ProfilePanel.xaml">
       <SubType>Designer</SubType>

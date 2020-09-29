@@ -22,7 +22,7 @@
             <MenuItem Header="Help"/>
         </Menu>
         <DockPanel DockPanel.Dock="Top" Height="30" Background="LightGray">
-            <Button Content="Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"/>
+            <Button Content="Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3" Click="DeployButton_Click"/>
             <Button Content="" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"/>
             <Button Content="" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"/>
             <Label DockPanel.Dock="Right" Content="DEV" Background="Lime" HorizontalAlignment="Right" Width="48" HorizontalContentAlignment="Center"

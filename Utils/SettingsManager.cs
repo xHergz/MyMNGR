@@ -25,13 +25,17 @@ namespace MyMNGR.Utils
 
         public string ProfileFolder = string.Empty;
 
+        public Profile CurrentProfile { get; private set; }
+
         public SettingsManager()
         {
             _rootFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\\MyMNGR";
-            ProfileFolder = $"{_rootFolder}\\Profiles";
             _backupFolder = $"{_rootFolder}\\Backups";
             _settingsFile = $"{_rootFolder}\\{SETTINGS_FILE}";
             _profiles = new Dictionary<string, Profile>();
+
+            ProfileFolder = $"{_rootFolder}\\Profiles";
+            CurrentProfile = null;
 
             InitializeFolders();
             LoadSettings();
@@ -52,6 +56,7 @@ namespace MyMNGR.Utils
                     _profiles.Remove(loaded.Name);
                 }
                 _profiles.Add(loaded.Name, loaded);
+                CurrentProfile = loaded;
             }
             return true;
         } 

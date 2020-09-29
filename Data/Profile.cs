@@ -15,5 +15,7 @@ namespace MyMNGR.Data
         public string DevAlias;
 
         public string ProdAlias;
+
+        public string DatabaseName;
     }
 }
