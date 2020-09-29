@@ -26,6 +26,8 @@ namespace MyMNGR
     {
         private ConsoleManager _consoleManager;
 
+        private FileManager _fileManager;
+
         private MySqlManager _mySqlManager;
 
         private SettingsManager _settingsManager;
@@ -34,14 +36,19 @@ namespace MyMNGR
 
         private UserControl _visiblePanel;
 
+        public bool ProfileLoaded { get { return _settingsManager.CurrentProfile != null; } }
+
         public MainWindow()
         {
             InitializeComponent();
             _consoleManager = new ConsoleManager(_consoleWindow);
+            _fileManager = new FileManager();
             _settingsManager = new SettingsManager();
             _profilePanel = new ProfilePanel();
             _profilePanel.Cancel += ProfilePanel_Cancel;
             _profilePanel.Save += ProfilePanel_Save;
+
+            UpdateButtons();
         }
 
         private void CloseVisiblePanel()
@@ -57,6 +64,16 @@ namespace MyMNGR
         {
             _visiblePanel = newPanel;
             _mainContent.Children.Add(_profilePanel);
+        }
+
+        private void UpdateButtons()
+        {
+            _deployButton.IsEnabled = ProfileLoaded;
+            _forceDeployButton.IsEnabled = ProfileLoaded;
+            _dropButton.IsEnabled = ProfileLoaded;
+            _backupButton.IsEnabled = ProfileLoaded;
+            _restoreButton.IsEnabled = ProfileLoaded;
+            _forceRestoreButton.IsEnabled = ProfileLoaded;
         }
 
         private void FileNew_Click(object sender, RoutedEventArgs e)
@@ -75,7 +92,9 @@ namespace MyMNGR
                 if (_settingsManager.LoadProfile(openFileDialog.FileName))
                 {
                     _consoleManager.LogMessage($"Successfully loaded profile from {openFileDialog.FileName}");
-                    _mySqlManager = new MySqlManager(_settingsManager.CurrentProfile, Target.Development);
+                    _fileManager.LoadFiles(_settingsManager.CurrentProfile.Directory);
+                    _mySqlManager = new MySqlManager(_consoleManager, _fileManager, _settingsManager);
+                    UpdateButtons();
                 }
                 else
                 {
@@ -106,6 +125,16 @@ namespace MyMNGR
         private void DeployButton_Click(object sender, RoutedEventArgs e)
         {
             _mySqlManager.DeployDatabase();
+        }
+
+        private void ForceDeplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mySqlManager.ForceDeployDatabase();
+        }
+
+        private void DropButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mySqlManager.DropDatabase();
         }
     }
 }

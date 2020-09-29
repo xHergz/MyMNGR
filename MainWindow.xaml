@@ -21,12 +21,34 @@
             <MenuItem Header="Settings"/>
             <MenuItem Header="Help"/>
         </Menu>
-        <DockPanel DockPanel.Dock="Top" Height="30" Background="LightGray">
-            <Button Content="Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3" Click="DeployButton_Click"/>
-            <Button Content="" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"/>
-            <Button Content="" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"/>
+        <DockPanel DockPanel.Dock="Top" Height="30" Background="#F0F0F0">
+            <Button Name="_deployButton" ToolTip="Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="DeployButton_Click">
+                <Image Source="/Assets/database_go.png" />
+            </Button>
+            <Button Name="_forceDeployButton" ToolTip="Force Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="ForceDeplyButton_Click">
+                <Image Source="/Assets/database_error.png" />
+            </Button>
+            <Button Name="_dropButton" ToolTip="Drop" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="DropButton_Click">
+                <Image Source="/Assets/database_delete.png" />
+            </Button>
+            <Button Name="_backupButton" ToolTip="Backup" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+                <Image Source="/Assets/database_save.png" />
+            </Button>
+            <Button Name="_restoreButton" ToolTip="Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+                <Image Source="/Assets/database_refresh.png" />
+            </Button>
+            <Button Name="_forceRestoreButton" ToolTip="Force Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+                <Image Source="/Assets/database_cleanup.png" />
+            </Button>
             <Label DockPanel.Dock="Right" Content="DEV" Background="Lime" HorizontalAlignment="Right" Width="48" HorizontalContentAlignment="Center"
-                FontWeight="ExtraBold" />
+                VerticalContentAlignment="Center" FontFamily="Arial" FontWeight="UltraBold" Margin="3"/>
+            <Button Name="_switchTargetButton" DockPanel.Dock="Right" ToolTip="Switch Target" Height="24" Width="24" VerticalAlignment="Center"
+                HorizontalAlignment="Right" Margin="3">
+                <Image Source="/Assets/server_information.png" />
+            </Button>
         </DockPanel>
         <DockPanel DockPanel.Dock="Bottom" Height="24" Background="LightGray" LastChildFill="False">
             <Label DockPanel.Dock="Left" Content="Current Profile: " Padding="0" VerticalContentAlignment="Center" Margin="10 0 0 0"/>
@@ -40,7 +62,7 @@
             </ListView.View>
         </ListView>
         <DockPanel>
-            <RichTextBox DockPanel.Dock="Bottom" Name="_consoleWindow" Height="200" Background="Black" Foreground="White" FontFamily="Courier New"/>
+            <RichTextBox DockPanel.Dock="Bottom" Name="_consoleWindow" Height="200" Background="Black" Foreground="White" FontFamily="Courier New" Block.LineHeight="1"/>
             <Grid Name="_mainContent" Background="LightGray">
                 
             </Grid>

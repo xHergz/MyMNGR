@@ -73,6 +73,7 @@
     <Compile Include="Data\Settings.cs" />
     <Compile Include="Data\Target.cs" />
     <Compile Include="Utils\ConsoleManager.cs" />
+    <Compile Include="Utils\FileManager.cs" />
     <Compile Include="Utils\MySqlManager.cs" />
     <Compile Include="Utils\SettingsManager.cs" />
     <Page Include="Components\ProfilePanel.xaml">
@@ -118,6 +119,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\database_error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\database_delete.png" />
+    <Resource Include="Assets\database_go.png" />
+    <Resource Include="Assets\database_refresh.png" />
+    <Resource Include="Assets\database_save.png" />
+    <Resource Include="Assets\server_information.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\database_cleanup.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

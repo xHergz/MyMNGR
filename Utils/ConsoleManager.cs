@@ -18,7 +18,8 @@ namespace MyMNGR.Utils
 
         public void LogMessage(string message)
         {
-            _target.AppendText($"[{DateTime.Now.ToString("yyyy/dd/MM HH:mm")}] {message}");
+            _target.AppendText($"[{DateTime.Now.ToString("yyyy/dd/MM HH:mm")}]: {message}{Environment.NewLine}");
+            _target.ScrollToEnd();
         }
     }
 }

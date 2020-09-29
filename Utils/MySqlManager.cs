@@ -14,43 +14,93 @@ namespace MyMNGR.Utils
 
         private const string MYSQL_CONFIG_EDITOR = "mysql_config_editor";
 
-        private Profile _profile;
+        private ConsoleManager _consoleManager;
 
-        private Target _currentTarget;
+        private FileManager _fileManager;
 
-        private string CurrentAlias { get { return _currentTarget == Target.Production ? _profile.ProdAlias : _profile.DevAlias; } }
+        private SettingsManager _settingsManager;
 
-        public MySqlManager(Profile profile, Target initialTarget)
+        private string CurrentAlias
         {
-            _profile = profile;
-            _currentTarget = initialTarget;
+            get
+            {
+                return _settingsManager.CurrentTarget == Target.Production
+                    ? _settingsManager.CurrentProfile.ProdAlias
+                    : _settingsManager.CurrentProfile.DevAlias;
+            }
+        }
+
+        private string DbName { get { return _settingsManager.CurrentProfile.DatabaseName; } }
+
+        public MySqlManager(ConsoleManager console, FileManager files, SettingsManager settings)
+        {
+            _consoleManager = console;
+            _fileManager = files;
+            _settingsManager = settings;
         }
 
         public bool DeployDatabase()
         {
-            // Find all files in directory
+            _consoleManager.LogMessage($"Deploying {DbName}...");
+
+            if (DoesDatabaseExist(DbName))
+            {
+                _consoleManager.LogMessage("Database already exists.");
+                return false;
+            }
 
             // Create database
-            CreateDatabase(_profile.DatabaseName);
+            if (!CreateDatabase(DbName))
+            {
+                _consoleManager.LogMessage("Failed to create the database.");
+                return false;
+            }
 
             // Call each file in order: Tables, Views, Functions, Stored Procs, Data
 
+            _consoleManager.LogMessage("Deploy succeeded.");
             return true;
         }
 
-        public void SwitchTarget(Target newTarget)
+        public bool ForceDeployDatabase()
         {
-            _currentTarget = newTarget;
+            _consoleManager.LogMessage($"Force deploying {DbName}...");
+            if (DoesDatabaseExist(DbName))
+            {
+                _consoleManager.LogMessage($"Database already exists, dropping {DbName}...");
+                DropDatabase(DbName);
+            }
+
+            return DeployDatabase();
         }
 
-        private void CreateDatabase(string databaseName)
+        public void DropDatabase()
         {
-            RunCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
+            _consoleManager.LogMessage($"Dropping {DbName}...");
+            DropDatabase(DbName);
+            _consoleManager.LogMessage($"Database dropped.");
         }
 
-        private void RunCommand(string command)
+        private bool CreateDatabase(string databaseName)
         {
-            RunProcess(MYSQL, $"--login-path=${CurrentAlias} -e \"{command}\"");
+            ProcessResult result = RunCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
+            return result.Success;
+        }
+
+        private void DropDatabase(string databaseName)
+        {
+            RunCommand($"DROP DATABASE {databaseName};");
+        }
+
+        private bool DoesDatabaseExist(string databaseName)
+        {
+            ProcessResult result = RunCommand($"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}'");
+            return result.Success && !result.IsEmpty;
+        }
+
+        private ProcessResult RunCommand(string command)
+        {
+            return RunProcess(MYSQL, $"--login-path={CurrentAlias} -e \"{command}\"");
         }
 
         private void RunFile(string filePath)
@@ -68,14 +118,16 @@ namespace MyMNGR.Utils
             Process process = new Process();
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
             process.Start();
+            string output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
             return new ProcessResult()
             {
                 ExitCode = process.ExitCode,
-                Output = process.StandardOutput.ReadToEnd()
+                Output = output
             };
         }
     }

@@ -11,5 +11,9 @@ namespace MyMNGR.Data
         public string Output;
 
         public int ExitCode;
+
+        public bool Success { get { return ExitCode == 0; } }
+
+        public bool IsEmpty { get { return string.IsNullOrWhiteSpace(Output); } }
     }
 }

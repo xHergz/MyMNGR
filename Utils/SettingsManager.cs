@@ -27,6 +27,8 @@ namespace MyMNGR.Utils
 
         public Profile CurrentProfile { get; private set; }
 
+        public Target CurrentTarget { get; private set; }
+
         public SettingsManager()
         {
             _rootFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}\\MyMNGR";
@@ -36,6 +38,7 @@ namespace MyMNGR.Utils
 
             ProfileFolder = $"{_rootFolder}\\Profiles";
             CurrentProfile = null;
+            CurrentTarget = Target.Development;
 
             InitializeFolders();
             LoadSettings();
