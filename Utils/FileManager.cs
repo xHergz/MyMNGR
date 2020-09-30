@@ -11,11 +11,27 @@ namespace MyMNGR.Utils
     {
         private const string SQL_EXTENSION = "*.sql";
 
-        private const string TABLE_DIRECTORY = "Tables";
+        private const string DATA_DIRECTORY = "Data";
+
+        private const string FUNCTIONS_DIRECTORY = "Functions";
+
+        private const string STORED_PROCEDURES_DIRECTORY = "StoredProcedures";
+
+        private const string TABLES_DIRECTORY = "Tables";
+
+        private const string VIEWS_DIRECTORY = "Views";
 
         private string _rootDirectory;
 
-        public List<string> Tables { get; private set; }
+        public IEnumerable<string> Data { get; private set; }
+
+        public IEnumerable<string> Functions { get; private set; }
+
+        public IEnumerable<string> StoredProcedures { get; private set; }
+
+        public IEnumerable<string> Tables { get; private set; }
+
+        public IEnumerable<string> Views { get; private set; }
 
         public FileManager()
         {
@@ -26,12 +42,21 @@ namespace MyMNGR.Utils
         public void LoadFiles(string rootDirectory)
         {
             _rootDirectory = rootDirectory;
-            Tables = GetSqlFiles(TABLE_DIRECTORY);
+            Data = GetSqlFiles(DATA_DIRECTORY);
+            Functions = GetSqlFiles(FUNCTIONS_DIRECTORY);
+            StoredProcedures = GetSqlFiles(STORED_PROCEDURES_DIRECTORY);
+            Tables = GetSqlFiles(TABLES_DIRECTORY);
+            Views = GetSqlFiles(VIEWS_DIRECTORY);
         }
 
-        private List<string> GetSqlFiles(string folder)
+        private IEnumerable<string> GetSqlFiles(string folder)
         {
-            return Directory.GetFiles($"{_rootDirectory}\\{folder}", SQL_EXTENSION, SearchOption.TopDirectoryOnly).ToList();
+            string fullDirectory = $"{_rootDirectory}\\{folder}";
+            if (!Directory.Exists(fullDirectory))
+            {
+                return Enumerable.Empty<string>();
+            }
+            return Directory.GetFiles(fullDirectory, SQL_EXTENSION, SearchOption.TopDirectoryOnly);
         }
     }
 }

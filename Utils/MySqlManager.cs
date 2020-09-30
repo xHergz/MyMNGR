@@ -57,6 +57,23 @@ namespace MyMNGR.Utils
             }
 
             // Call each file in order: Tables, Views, Functions, Stored Procs, Data
+            IEnumerable<string> orderedFiles = new List<string>()
+                .Concat(_fileManager.Tables)
+                .Concat(_fileManager.Views)
+                .Concat(_fileManager.Functions)
+                .Concat(_fileManager.StoredProcedures)
+                .Concat(_fileManager.Data);
+
+            foreach(string filePath in orderedFiles)
+            {
+                ProcessResult result = RunFile(DbName, filePath);
+                if (!result.Success)
+                {
+                    _consoleManager.LogMessage($"Failed to run {filePath}.");
+                    _consoleManager.LogMessage(result.Error);
+                    return false;
+                }
+            }
 
             _consoleManager.LogMessage("Deploy succeeded.");
             return true;
@@ -83,29 +100,34 @@ namespace MyMNGR.Utils
 
         private bool CreateDatabase(string databaseName)
         {
-            ProcessResult result = RunCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
+            ProcessResult result = RunSystemCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
             return result.Success;
         }
 
         private void DropDatabase(string databaseName)
         {
-            RunCommand($"DROP DATABASE {databaseName};");
+            RunSystemCommand($"DROP DATABASE {databaseName};");
         }
 
         private bool DoesDatabaseExist(string databaseName)
         {
-            ProcessResult result = RunCommand($"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}'");
-            return result.Success && !result.IsEmpty;
+            ProcessResult result = RunSystemCommand($"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}'");
+            return result.Success && !result.IsOutputEmpty;
         }
 
-        private ProcessResult RunCommand(string command)
+        private ProcessResult RunSystemCommand(string command)
         {
             return RunProcess(MYSQL, $"--login-path={CurrentAlias} -e \"{command}\"");
         }
 
-        private void RunFile(string filePath)
+        private ProcessResult RunCommand(string databaseName, string command)
         {
+            return RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"{command}\"");
+        }
 
+        private ProcessResult RunFile(string databaseName, string filePath)
+        {
+            return RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"source {filePath}\"");
         }
 
         private void RunConfigEditor(string action, string arguments)
@@ -118,14 +140,17 @@ namespace MyMNGR.Utils
             Process process = new Process();
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
             process.WaitForExit();
             return new ProcessResult()
             {
+                Error = error,
                 ExitCode = process.ExitCode,
                 Output = output
             };

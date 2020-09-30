@@ -8,12 +8,16 @@ namespace MyMNGR.Data
 {
     public class ProcessResult
     {
-        public string Output;
+        public string Error;
 
         public int ExitCode;
 
-        public bool Success { get { return ExitCode == 0; } }
+        public string Output;
 
-        public bool IsEmpty { get { return string.IsNullOrWhiteSpace(Output); } }
+        public bool Success { get { return ExitCode == 0 && IsErrorEmpty; } }
+
+        public bool IsOutputEmpty { get { return string.IsNullOrWhiteSpace(Output); } }
+
+        public bool IsErrorEmpty { get { return string.IsNullOrWhiteSpace(Error); } }
     }
 }
