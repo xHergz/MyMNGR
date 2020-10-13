@@ -68,9 +68,13 @@
     <Compile Include="Components\ProfilePanel.xaml.cs">
       <DependentUpon>ProfilePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data\MySQL\Column.cs" />
+    <Compile Include="Data\MySQL\DataType.cs" />
+    <Compile Include="Data\MySQL\ForeignKey.cs" />
     <Compile Include="Data\ProcessResult.cs" />
     <Compile Include="Data\Profile.cs" />
     <Compile Include="Data\Settings.cs" />
+    <Compile Include="Data\MySQL\Table.cs" />
     <Compile Include="Data\Target.cs" />
     <Compile Include="Utils\ConsoleManager.cs" />
     <Compile Include="Utils\FileManager.cs" />
