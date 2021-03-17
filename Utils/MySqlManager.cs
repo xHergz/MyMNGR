@@ -1,10 +1,13 @@
-﻿using MyMNGR.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using HergBot.SqlParser.Data.MySQL;
+
+using MyMNGR.Data;
 
 namespace MyMNGR.Utils
 {
@@ -19,6 +22,8 @@ namespace MyMNGR.Utils
         private FileManager _fileManager;
 
         private SettingsManager _settingsManager;
+
+        private Dictionary<string, Table> _tables;
 
         private string CurrentAlias
         {
@@ -37,6 +42,31 @@ namespace MyMNGR.Utils
             _consoleManager = console;
             _fileManager = files;
             _settingsManager = settings;
+
+            _tables = new Dictionary<string, Table>();
+
+            LoadSchema();
+        }
+
+        public void LoadSchema()
+        {
+            foreach(string tableFile in _fileManager.Tables)
+            {
+                string tableContents = _fileManager.GetFile(tableFile);
+                if (string.IsNullOrWhiteSpace(tableContents))
+                {
+                    _consoleManager.LogMessage($"{tableFile} is empty.");
+                }
+                try
+                {
+                    _tables.Add(tableFile, Table.Parse(tableContents));
+                }
+                catch(Exception e)
+                {
+                    _consoleManager.LogMessage($"Failed to parse {tableFile}.");
+                    _consoleManager.LogMessage(e.Message);
+                }
+            }
         }
 
         public bool DeployDatabase()
@@ -58,7 +88,7 @@ namespace MyMNGR.Utils
 
             // Call each file in order: Tables, Views, Functions, Stored Procs, Data
             IEnumerable<string> orderedFiles = new List<string>()
-                .Concat(_fileManager.Tables)
+                .Concat(GetOrderedTables())
                 .Concat(_fileManager.Views)
                 .Concat(_fileManager.Functions)
                 .Concat(_fileManager.StoredProcedures)
@@ -154,6 +184,49 @@ namespace MyMNGR.Utils
                 ExitCode = process.ExitCode,
                 Output = output
             };
+        }
+
+        private IEnumerable<string> GetOrderedTables()
+        {
+            // Table name/full path pairs. Start off with tables that have no dependencies
+            Dictionary<string, string> tableOrder = _tables
+                .Where(table => !table.Value.GetDependencies().Any())
+                .ToDictionary(table => table.Value.Name, table => table.Key);
+
+            // All tables with any dependencies are left
+            Dictionary<string, Table> remainingTables = _tables
+                .Where(x => x.Value.GetDependencies().Any())
+                .ToDictionary(table => table.Key, table => table.Value);
+
+            while (remainingTables.Any())
+            {
+                if (tableOrder.Count > _tables.Count)
+                {
+                    _consoleManager.LogMessage("Error ordering tables: There are more tables in the ordered list than there are tables");
+                    break;
+                }
+
+                // Tables where all dependencies are already in the table order list (will already exist)
+                List<string> eligibleTables = remainingTables
+                    .Where(table => table.Value.GetDependencies().All(dependencyTableName => tableOrder.ContainsKey(dependencyTableName)))
+                    .Select(table => table.Key)
+                    .ToList();
+
+                // It should be impossible in a proper set of table files to be in a position where there are tables left but none are eligible
+                if (!eligibleTables.Any())
+                {
+                    _consoleManager.LogMessage("Error ordering tables: There is a table with dependencies that can't be resolved.");
+                    break;
+                }
+
+                foreach(string eligibleTable in eligibleTables)
+                {
+                    tableOrder.Add(remainingTables[eligibleTable].Name, eligibleTable);
+                   remainingTables.Remove(eligibleTable);
+                }
+            }
+
+            return tableOrder.Values;
         }
     }
 }

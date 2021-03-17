@@ -49,6 +49,15 @@ namespace MyMNGR.Utils
             Views = GetSqlFiles(VIEWS_DIRECTORY);
         }
 
+        public string GetFile(string fullPath)
+        {
+            if (!File.Exists(fullPath))
+            {
+                return null;
+            }
+            return File.ReadAllText(fullPath);
+        }
+
         private IEnumerable<string> GetSqlFiles(string folder)
         {
             string fullDirectory = $"{_rootDirectory}\\{folder}";

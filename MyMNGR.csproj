@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HergBotSqlParser, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\HergBot.SqlParser.1.0.2\lib\netstandard2.0\HergBotSqlParser.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.WindowsAPICodePack, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\WindowsAPICodePack-Core.1.1.1\lib\Microsoft.WindowsAPICodePack.dll</HintPath>
     </Reference>
@@ -68,13 +71,9 @@
     <Compile Include="Components\ProfilePanel.xaml.cs">
       <DependentUpon>ProfilePanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Data\MySQL\Column.cs" />
-    <Compile Include="Data\MySQL\DataType.cs" />
-    <Compile Include="Data\MySQL\ForeignKey.cs" />
     <Compile Include="Data\ProcessResult.cs" />
     <Compile Include="Data\Profile.cs" />
     <Compile Include="Data\Settings.cs" />
-    <Compile Include="Data\MySQL\Table.cs" />
     <Compile Include="Data\Target.cs" />
     <Compile Include="Utils\ConsoleManager.cs" />
     <Compile Include="Utils\FileManager.cs" />
