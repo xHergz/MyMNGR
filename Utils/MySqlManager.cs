@@ -17,6 +17,8 @@ namespace MyMNGR.Utils
 
         private const string MYSQL_CONFIG_EDITOR = "mysql_config_editor";
 
+        private const string MYSQL_DUMP = "mysqldump";
+
         private ConsoleManager _consoleManager;
 
         private FileManager _fileManager;
@@ -128,6 +130,29 @@ namespace MyMNGR.Utils
             _consoleManager.LogMessage($"Database dropped.");
         }
 
+        public void BackupDatabase()
+        {
+            _consoleManager.LogMessage($"Backing up {DbName}...");
+            ProcessResult result = RunBackupCommand(DbName);
+            if (!result.Success)
+            {
+                _consoleManager.LogMessage($"Failed to back up {DbName}.");
+                _consoleManager.LogMessage(result.Error);
+                return;
+            }
+            if (!_fileManager.WriteFile(result.Output, CreateBackupPath(DbName)))
+            {
+                _consoleManager.LogMessage($"Failed to write back up file for {DbName}.");
+                return;
+            }
+            _consoleManager.LogMessage($"Backup succeeded.");
+        }
+
+        public void RestoreDatabase()
+        {
+            //_fileManager.
+        }
+
         private bool CreateDatabase(string databaseName)
         {
             ProcessResult result = RunSystemCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
@@ -160,6 +185,19 @@ namespace MyMNGR.Utils
             return RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"source {filePath}\"");
         }
 
+        private ProcessResult RunBackupCommand(string databaseName)
+        {
+            string args = $"--login-path={CurrentAlias} --protocol=tcp --port=3306 --default-character-set=utf8 --routines --skip-extended-insert"
+                + $" --databases {databaseName}";
+            return RunProcess(MYSQL_DUMP, args);
+        }
+
+        private string CreateBackupPath(string databaseName)
+        {
+            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmm");
+            return $"{_settingsManager.BackupFolder}\\{databaseName}_{timestamp}.sql";
+        }
+
         private void RunConfigEditor(string action, string arguments)
         {
 
@@ -174,6 +212,8 @@ namespace MyMNGR.Utils
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
+            //process.StartInfo.Verb = "runas";
+            //process.StartInfo.WorkingDirectory = "C:\\Users\\Justin\\Documents\\MyMNGR\\";
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();

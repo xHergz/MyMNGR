@@ -34,7 +34,8 @@
                 Click="DropButton_Click">
                 <Image Source="/Assets/database_delete.png" />
             </Button>
-            <Button Name="_backupButton" ToolTip="Backup" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+            <Button Name="_backupButton" ToolTip="Backup" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="BackupButton_Click">
                 <Image Source="/Assets/database_save.png" />
             </Button>
             <Button Name="_restoreButton" ToolTip="Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Microsoft.WindowsAPICodePack.Dialogs;
+
 namespace MyMNGR.Utils
 {
     public class FileManager
@@ -56,6 +58,26 @@ namespace MyMNGR.Utils
                 return null;
             }
             return File.ReadAllText(fullPath);
+        }
+
+        public bool WriteFile(string contents, string fullPath)
+        {
+            try
+            {
+                File.WriteAllText(fullPath, contents);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public string SelectFile(string folder)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            CommonFileDialogResult result = dialog.ShowDialog();
+            return result == CommonFileDialogResult.Ok ? dialog.FileName : string.Empty;
         }
 
         private IEnumerable<string> GetSqlFiles(string folder)

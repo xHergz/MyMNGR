@@ -71,6 +71,7 @@
     <Compile Include="Components\ProfilePanel.xaml.cs">
       <DependentUpon>ProfilePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data\BackupFile.cs" />
     <Compile Include="Data\ProcessResult.cs" />
     <Compile Include="Data\Profile.cs" />
     <Compile Include="Data\Settings.cs" />

@@ -136,5 +136,10 @@ namespace MyMNGR
         {
             _mySqlManager.DropDatabase();
         }
+
+        private void BackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            _mySqlManager.BackupDatabase();
+        }
     }
 }
