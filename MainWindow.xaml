@@ -38,16 +38,18 @@
                 Click="BackupButton_Click">
                 <Image Source="/Assets/database_save.png" />
             </Button>
-            <Button Name="_restoreButton" ToolTip="Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+            <Button Name="_restoreButton" ToolTip="Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="RestoreButton_Click">
                 <Image Source="/Assets/database_refresh.png" />
             </Button>
-            <Button Name="_forceRestoreButton" ToolTip="Force Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3">
+            <Button Name="_forceRestoreButton" ToolTip="Force Restore" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="ForceRestoreButton_Click">
                 <Image Source="/Assets/database_cleanup.png" />
             </Button>
-            <Label DockPanel.Dock="Right" Content="DEV" Background="Lime" HorizontalAlignment="Right" Width="48" HorizontalContentAlignment="Center"
+            <Label Name="_targetLabel" DockPanel.Dock="Right" Content="DEV" Background="Lime" HorizontalAlignment="Right" Width="48" HorizontalContentAlignment="Center"
                 VerticalContentAlignment="Center" FontFamily="Arial" FontWeight="UltraBold" Margin="3"/>
             <Button Name="_switchTargetButton" DockPanel.Dock="Right" ToolTip="Switch Target" Height="24" Width="24" VerticalAlignment="Center"
-                HorizontalAlignment="Right" Margin="3">
+                HorizontalAlignment="Right" Margin="3" Click="SwitchTargetButton_Click">
                 <Image Source="/Assets/server_information.png" />
             </Button>
         </DockPanel>

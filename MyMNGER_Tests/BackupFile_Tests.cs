@@ -12,7 +12,7 @@ namespace MyMNGER_Tests
 
         private const string TIMESTAMP = "2021-03-27_0749";
 
-        private const string EXTENSION = "bak";
+        private const string EXTENSION = "sql";
 
         private static readonly string PATH_WITH_INVALID_EXTENSION = $"C:\\Files\\{DATABASE_NAME}_{TIMESTAMP}.shoe";
 

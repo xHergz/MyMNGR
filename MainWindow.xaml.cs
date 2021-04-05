@@ -24,6 +24,14 @@ namespace MyMNGR
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly SolidColorBrush DEV_COLOUR = new SolidColorBrush(Colors.Lime);
+
+        private static readonly SolidColorBrush PROD_COLOUR = new SolidColorBrush(Colors.Red);
+
+        private const string DEV_LABEL = "DEV";
+
+        private const string PROD_LABEL = "PROD";
+
         private ConsoleManager _consoleManager;
 
         private FileManager _fileManager;
@@ -38,6 +46,8 @@ namespace MyMNGR
 
         public bool ProfileLoaded { get { return _settingsManager.CurrentProfile != null; } }
 
+        public bool ForceActionsEnabled { get { return _settingsManager.CurrentTarget == Target.Development; } }
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,6 +59,7 @@ namespace MyMNGR
             _profilePanel.Save += ProfilePanel_Save;
 
             UpdateButtons();
+            UpdateTargetLabel();
         }
 
         private void CloseVisiblePanel()
@@ -69,11 +80,46 @@ namespace MyMNGR
         private void UpdateButtons()
         {
             _deployButton.IsEnabled = ProfileLoaded;
-            _forceDeployButton.IsEnabled = ProfileLoaded;
+            _forceDeployButton.IsEnabled = ProfileLoaded && ForceActionsEnabled;
             _dropButton.IsEnabled = ProfileLoaded;
             _backupButton.IsEnabled = ProfileLoaded;
             _restoreButton.IsEnabled = ProfileLoaded;
-            _forceRestoreButton.IsEnabled = ProfileLoaded;
+            _forceRestoreButton.IsEnabled = ProfileLoaded && ForceActionsEnabled;
+        }
+
+        private void UpdateTargetLabel()
+        {
+            switch(_settingsManager.CurrentTarget)
+            {
+                case Target.Production:
+                    _targetLabel.Content = PROD_LABEL;
+                    _targetLabel.Background = PROD_COLOUR;
+                    break;
+                case Target.Development:
+                default:
+                    _targetLabel.Content = DEV_LABEL;
+                    _targetLabel.Background = DEV_COLOUR;
+                    break;
+            }
+        }
+
+        private void ProductionConfirmation(string description, Action actionFunction)
+        {
+            if (_settingsManager.CurrentTarget != Target.Development)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    $"You are about to {description} the {_settingsManager.CurrentTarget.ToString("G")} database. Please confirm this action.",
+                    "MyMNGR - Confirmation",
+                    MessageBoxButton.OKCancel,
+                    MessageBoxImage.Warning,
+                    MessageBoxResult.Cancel
+                );
+                if (result != MessageBoxResult.OK)
+                {
+                    return;
+                }
+            }
+            actionFunction();
         }
 
         private void FileNew_Click(object sender, RoutedEventArgs e)
@@ -95,6 +141,7 @@ namespace MyMNGR
                     _fileManager.LoadFiles(_settingsManager.CurrentProfile.Directory);
                     _mySqlManager = new MySqlManager(_consoleManager, _fileManager, _settingsManager);
                     UpdateButtons();
+                    UpdateTargetLabel();
                 }
                 else
                 {
@@ -124,22 +171,39 @@ namespace MyMNGR
 
         private void DeployButton_Click(object sender, RoutedEventArgs e)
         {
-            _mySqlManager.DeployDatabase();
+            ProductionConfirmation("deploy", () => _mySqlManager.DeployDatabase());
         }
 
         private void ForceDeplyButton_Click(object sender, RoutedEventArgs e)
         {
-            _mySqlManager.ForceDeployDatabase();
+            ProductionConfirmation("force deploy", () => _mySqlManager.ForceDeployDatabase());
         }
 
         private void DropButton_Click(object sender, RoutedEventArgs e)
         {
-            _mySqlManager.DropDatabase();
+            ProductionConfirmation("drop", () => _mySqlManager.DropDatabase());
         }
 
         private void BackupButton_Click(object sender, RoutedEventArgs e)
         {
-            _mySqlManager.BackupDatabase();
+            ProductionConfirmation("backup", () => _mySqlManager.BackupDatabase());
+        }
+
+        private void RestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProductionConfirmation("restore", () => _mySqlManager.RestoreDatabase());
+        }
+
+        private void ForceRestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProductionConfirmation("force restore", () => _mySqlManager.ForceRestoreDatabase());
+        }
+
+        private void SwitchTargetButton_Click(object sender, RoutedEventArgs e)
+        {
+            _settingsManager.SwitchTargets();
+            UpdateTargetLabel();
+            UpdateButtons();
         }
     }
 }

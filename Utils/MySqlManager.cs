@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Windows;
 using HergBot.SqlParser.Data.MySQL;
 
 using MyMNGR.Data;
@@ -13,11 +13,19 @@ namespace MyMNGR.Utils
 {
     public class MySqlManager
     {
+        private enum ConfigEditorAction
+        {
+            Print,
+            Set
+        }
+
         private const string MYSQL = "mysql";
 
         private const string MYSQL_CONFIG_EDITOR = "mysql_config_editor";
 
         private const string MYSQL_DUMP = "mysqldump";
+
+        private delegate bool DatabaseAction(string databaseName);
 
         private ConsoleManager _consoleManager;
 
@@ -73,6 +81,81 @@ namespace MyMNGR.Utils
 
         public bool DeployDatabase()
         {
+            return PerformDatabaseAction(DbName, false, Deploy);
+        }
+
+        public bool ForceDeployDatabase()
+        {
+            _consoleManager.LogMessage($"Force deploying {DbName}...");
+            return PerformDatabaseAction(DbName, true, Deploy);
+        }
+
+        public bool DropDatabase()
+        {
+            return PerformDatabaseAction(DbName, true);
+        }
+
+        public bool BackupDatabase()
+        {
+            return PerformDatabaseAction(DbName, false, Backup);
+        }
+
+        public bool RestoreDatabase()
+        {
+            _consoleManager.LogMessage($"Restoring {DbName}...");
+            return PerformDatabaseAction(DbName, false, RestoreDatabase);
+        }
+
+        public bool ForceRestoreDatabase()
+        {
+
+            _consoleManager.LogMessage($"Force restoring {DbName}...");
+            return PerformDatabaseAction(DbName, true, RestoreDatabase);
+        }
+
+        private bool PerformDatabaseAction(string databaseName, bool force, DatabaseAction action = null)
+        {
+            // Check if the current alias exists
+            if (!DoesAliasExist(CurrentAlias))
+            {
+                _consoleManager.LogMessage($"The current alias \"{CurrentAlias}\" does not exist.");
+                return false;
+            }
+
+            bool dbExists = DoesDatabaseExist(databaseName);
+            // Check if you need to drop the database from a force
+            if (force && dbExists && !DropDatabase(databaseName))
+            {
+                return false;
+            }
+
+            return action != null ? action(databaseName) : true;
+        }
+
+        private bool CreateDatabase(string databaseName)
+        {
+            ProcessResult result = RunSqlCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
+            return result.Success;
+        }
+
+        private bool DropDatabase(string databaseName)
+        {
+            _consoleManager.LogMessage($"Dropping database {databaseName}...");
+            ProcessResult  result = RunSqlCommand($"DROP DATABASE {databaseName};");
+
+            if (!result.Success)
+            {
+                _consoleManager.LogMessage($"Failed to drop datbase {databaseName}");
+                _consoleManager.LogMessage(result.Error);
+                return false;
+            }
+
+            _consoleManager.LogMessage($"Database dropped.");
+            return result.Success;
+        }
+
+        private bool Deploy(string databaseName)
+        {
             _consoleManager.LogMessage($"Deploying {DbName}...");
 
             if (DoesDatabaseExist(DbName))
@@ -82,7 +165,7 @@ namespace MyMNGR.Utils
             }
 
             // Create database
-            if (!CreateDatabase(DbName))
+            if (!CreateDatabase(databaseName))
             {
                 _consoleManager.LogMessage("Failed to create the database.");
                 return false;
@@ -96,9 +179,9 @@ namespace MyMNGR.Utils
                 .Concat(_fileManager.StoredProcedures)
                 .Concat(_fileManager.Data);
 
-            foreach(string filePath in orderedFiles)
+            foreach (string filePath in orderedFiles)
             {
-                ProcessResult result = RunFile(DbName, filePath);
+                ProcessResult result = RunFile(filePath, databaseName);
                 if (!result.Success)
                 {
                     _consoleManager.LogMessage($"Failed to run {filePath}.");
@@ -111,26 +194,7 @@ namespace MyMNGR.Utils
             return true;
         }
 
-        public bool ForceDeployDatabase()
-        {
-            _consoleManager.LogMessage($"Force deploying {DbName}...");
-            if (DoesDatabaseExist(DbName))
-            {
-                _consoleManager.LogMessage($"Database already exists, dropping {DbName}...");
-                DropDatabase(DbName);
-            }
-
-            return DeployDatabase();
-        }
-
-        public void DropDatabase()
-        {
-            _consoleManager.LogMessage($"Dropping {DbName}...");
-            DropDatabase(DbName);
-            _consoleManager.LogMessage($"Database dropped.");
-        }
-
-        public void BackupDatabase()
+        private bool Backup(string databaseName)
         {
             _consoleManager.LogMessage($"Backing up {DbName}...");
             ProcessResult result = RunBackupCommand(DbName);
@@ -138,51 +202,114 @@ namespace MyMNGR.Utils
             {
                 _consoleManager.LogMessage($"Failed to back up {DbName}.");
                 _consoleManager.LogMessage(result.Error);
-                return;
+                return false;
             }
             if (!_fileManager.WriteFile(result.Output, CreateBackupPath(DbName)))
             {
                 _consoleManager.LogMessage($"Failed to write back up file for {DbName}.");
-                return;
+                return false;
             }
             _consoleManager.LogMessage($"Backup succeeded.");
+            return true;
         }
 
-        public void RestoreDatabase()
+        private BackupFile InitializeRestore(string databaseName)
         {
-            //_fileManager.
+            try
+            {
+                string backupPath = _fileManager.SelectFile($"{BackupFolder(databaseName)}", "sql");
+                if (string.IsNullOrWhiteSpace(backupPath))
+                {
+                    return null;
+                }
+
+                BackupFile backupFile = BackupFile.FromPath(backupPath);
+                if (backupFile.DatabaseName != databaseName)
+                {
+                    MessageBoxResult result = MessageBox.Show(
+                        "The backup file you selected is not for the current working database. Would you like to continue with the restore?",
+                        "MyMNGR",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning,
+                        MessageBoxResult.No
+                    );
+                    if (result == MessageBoxResult.No)
+                    {
+                        _consoleManager.LogMessage($"Restore canceled.");
+                        return null;
+                    }
+                }
+                return backupFile;
+            }
+            catch (Exception ex)
+            {
+                _consoleManager.LogMessage($"Failed to restore database.");
+                _consoleManager.LogMessage(ex.Message);
+                return null;
+            }
         }
 
-        private bool CreateDatabase(string databaseName)
+        private bool RestoreDatabase(string databaseName)
         {
-            ProcessResult result = RunSystemCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
-            return result.Success;
-        }
+            BackupFile backupFile = InitializeRestore(databaseName);
+            if (backupFile == null)
+            {
+                return false;
+            }
 
-        private void DropDatabase(string databaseName)
-        {
-            RunSystemCommand($"DROP DATABASE {databaseName};");
+            if (DoesDatabaseExist(backupFile.DatabaseName))
+            {
+                _consoleManager.LogMessage($"Database already exists.");
+                return false;
+            }
+
+            _consoleManager.LogMessage($"Restoring {backupFile.DatabaseName} from {backupFile.FullPath}");
+            ProcessResult restoreResult = RunFile(backupFile.FullPath);
+            if (!restoreResult.Success)
+            {
+                _consoleManager.LogMessage($"Failed to restore {backupFile.DatabaseName}.");
+                _consoleManager.LogMessage(restoreResult.Error);
+                return false;
+            }
+
+            _consoleManager.LogMessage("Restore succeeded.");
+            return true;
         }
 
         private bool DoesDatabaseExist(string databaseName)
         {
-            ProcessResult result = RunSystemCommand($"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}'");
+            ProcessResult result = RunSqlCommand($"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}'");
             return result.Success && !result.IsOutputEmpty;
         }
 
-        private ProcessResult RunSystemCommand(string command)
+        private bool DoesAliasExist(string alias)
+        {
+            ProcessResult result = RunConfigEditor(ConfigEditorAction.Print, $"--login-path={alias}");
+            if (!result.Success)
+            {
+                _consoleManager.LogMessage("Failed to check alias");
+                _consoleManager.LogMessage(result.Error);
+                return false;
+            }
+            // The alias does not exist if there is no output
+            return !string.IsNullOrWhiteSpace(result.Output);
+        }
+
+        private ProcessResult RunSqlCommand(string command)
         {
             return RunProcess(MYSQL, $"--login-path={CurrentAlias} -e \"{command}\"");
         }
 
-        private ProcessResult RunCommand(string databaseName, string command)
+        private ProcessResult RunDatabaseCommand(string databaseName, string command)
         {
             return RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"{command}\"");
         }
 
-        private ProcessResult RunFile(string databaseName, string filePath)
+        private ProcessResult RunFile(string filePath, string databaseName = null)
         {
-            return RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"source {filePath}\"");
+            return string.IsNullOrWhiteSpace(databaseName)
+                ? RunProcess(MYSQL, $"--login-path={CurrentAlias} -e \"source {filePath}\"")
+                : RunProcess(MYSQL, $"--login-path={CurrentAlias} {databaseName} -e \"source {filePath}\"");
         }
 
         private ProcessResult RunBackupCommand(string databaseName)
@@ -192,15 +319,20 @@ namespace MyMNGR.Utils
             return RunProcess(MYSQL_DUMP, args);
         }
 
+        private ProcessResult RunConfigEditor(ConfigEditorAction action, string args)
+        {
+            return RunProcess(MYSQL_CONFIG_EDITOR, $"{action.ToString("G").ToLower()} {args}");
+        }
+
+        private string BackupFolder(string databaseName)
+        {
+            return $"{_settingsManager.BackupFolder}\\{databaseName}";
+        }
+
         private string CreateBackupPath(string databaseName)
         {
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HHmm");
-            return $"{_settingsManager.BackupFolder}\\{databaseName}_{timestamp}.sql";
-        }
-
-        private void RunConfigEditor(string action, string arguments)
-        {
-
+            return $"{BackupFolder(databaseName)}\\{databaseName}_{timestamp}.sql";
         }
 
         private ProcessResult RunProcess(string fileName, string arguments)
@@ -212,8 +344,6 @@ namespace MyMNGR.Utils
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
-            //process.StartInfo.Verb = "runas";
-            //process.StartInfo.WorkingDirectory = "C:\\Users\\Justin\\Documents\\MyMNGR\\";
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
@@ -223,6 +353,25 @@ namespace MyMNGR.Utils
                 Error = error,
                 ExitCode = process.ExitCode,
                 Output = output
+            };
+        }
+
+        private ProcessResult RunCommand(string fileName, string arguments)
+        {
+            Process process = new Process();
+            process.StartInfo.UseShellExecute = true;
+            process.StartInfo.RedirectStandardOutput = false;
+            process.StartInfo.RedirectStandardError = false;
+            process.StartInfo.CreateNoWindow = false;
+            process.StartInfo.FileName = fileName;
+            process.StartInfo.Arguments = arguments;
+            process.Start();
+            process.WaitForExit();
+            return new ProcessResult()
+            {
+                Error = string.Empty,
+                ExitCode = process.ExitCode,
+                Output = string.Empty
             };
         }
 

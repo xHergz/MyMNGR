@@ -61,6 +61,7 @@ namespace MyMNGR.Utils
                 _profiles.Add(loaded.Name, loaded);
                 CurrentProfile = loaded;
             }
+            InitializeProfileFolders();
             return true;
         } 
 
@@ -78,11 +79,30 @@ namespace MyMNGR.Utils
             return true;
         }
 
+        public void SwitchTargets()
+        {
+            switch(CurrentTarget)
+            {
+                case Target.Development:
+                    CurrentTarget = Target.Production;
+                    break;
+                case Target.Production:
+                default:
+                    CurrentTarget = Target.Development;
+                    break;
+            }
+        }
+
         private void InitializeFolders()
         {
             Directory.CreateDirectory(_rootFolder);
             Directory.CreateDirectory(ProfileFolder);
             Directory.CreateDirectory(BackupFolder);
+        }
+
+        private void InitializeProfileFolders()
+        {
+            Directory.CreateDirectory($"{BackupFolder}\\{CurrentProfile.DatabaseName}");
         }
 
         private void LoadSettings()

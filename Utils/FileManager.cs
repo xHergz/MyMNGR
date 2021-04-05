@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace MyMNGR.Utils
 {
@@ -73,11 +72,12 @@ namespace MyMNGR.Utils
             return true;
         }
 
-        public string SelectFile(string folder)
+        public string SelectFile(string folder, string fileExtension)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            CommonFileDialogResult result = dialog.ShowDialog();
-            return result == CommonFileDialogResult.Ok ? dialog.FileName : string.Empty;
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = folder;
+            openFileDialog.Filter = CreateFileFilter(fileExtension);
+            return openFileDialog.ShowDialog() == true ? openFileDialog.FileName : string.Empty;
         }
 
         private IEnumerable<string> GetSqlFiles(string folder)
@@ -88,6 +88,11 @@ namespace MyMNGR.Utils
                 return Enumerable.Empty<string>();
             }
             return Directory.GetFiles(fullDirectory, SQL_EXTENSION, SearchOption.TopDirectoryOnly);
+        }
+
+        private string CreateFileFilter(string fileExtension)
+        {
+            return $"{fileExtension.ToUpper()} files (*.{fileExtension}|*.{fileExtension}";
         }
     }
 }

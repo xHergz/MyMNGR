@@ -8,7 +8,7 @@ namespace MyMNGR.Data
     public class BackupFile
     {
         private enum VALID_EXTENSIONS {
-            bak
+            sql
         };
 
         private const string TIMESTAMP_FORMAT = "yyyy-MM-dd_HHmm";
