@@ -68,9 +68,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Components\AliasPanel.xaml.cs">
+      <DependentUpon>AliasPanel.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Components\ProfilePanel.xaml.cs">
       <DependentUpon>ProfilePanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Data\Alias.cs" />
     <Compile Include="Data\BackupFile.cs" />
     <Compile Include="Data\ProcessResult.cs" />
     <Compile Include="Data\Profile.cs" />
@@ -80,6 +84,10 @@
     <Compile Include="Utils\FileManager.cs" />
     <Compile Include="Utils\MySqlManager.cs" />
     <Compile Include="Utils\SettingsManager.cs" />
+    <Page Include="Components\AliasPanel.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Components\ProfilePanel.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -136,6 +144,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\database_cleanup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\diskette.png" />
+    <Resource Include="Assets\disk_multiple.png" />
+    <Resource Include="Assets\folder_page_white.png" />
+    <Resource Include="Assets\page_white_add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\server_key.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

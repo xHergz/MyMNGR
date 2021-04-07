@@ -10,9 +10,9 @@
     <DockPanel LastChildFill="true">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
-                <MenuItem Header="New" Click="FileNew_Click" CommandParameter="N"/>
+                <MenuItem Header="New" Click="NewProfile_Click" CommandParameter="N"/>
                 <Separator />
-                <MenuItem Header="Load..." Click="FileLoad_Click"/>
+                <MenuItem Header="Load..." Click="LoadProfile_Click"/>
                 <MenuItem Header="Save" />
                 <MenuItem Header="Save As..." />
                 <Separator />
@@ -22,6 +22,23 @@
             <MenuItem Header="Help"/>
         </Menu>
         <DockPanel DockPanel.Dock="Top" Height="30" Background="#F0F0F0">
+            <Button Name="_newButton" ToolTip="New" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="NewProfile_Click">
+                <Image Source="/Assets/page_white_add.png" />
+            </Button>
+            <Button Name="_loadButton" ToolTip="Load" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="LoadProfile_Click">
+                <Image Source="/Assets/folder_page_white.png" />
+            </Button>
+            <Button Name="_saveButton" ToolTip="Save" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="SaveButton_Click">
+                <Image Source="/Assets/diskette.png" />
+            </Button>
+            <Button Name="_saveAsButton" ToolTip="Save" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
+                Click="SaveAsButton_Click">
+                <Image Source="/Assets/disk_multiple.png" />
+            </Button>
+            <Separator DockPanel.Dock="Left" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
             <Button Name="_deployButton" ToolTip="Deploy" Height="24" Width="24" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3"
                 Click="DeployButton_Click">
                 <Image Source="/Assets/database_go.png" />
@@ -51,6 +68,10 @@
             <Button Name="_switchTargetButton" DockPanel.Dock="Right" ToolTip="Switch Target" Height="24" Width="24" VerticalAlignment="Center"
                 HorizontalAlignment="Right" Margin="3" Click="SwitchTargetButton_Click">
                 <Image Source="/Assets/server_information.png" />
+            </Button>
+            <Button Name="_newAliasButton" DockPanel.Dock="Right" ToolTip="New Alias" Height="24" Width="24" VerticalAlignment="Center"
+                HorizontalAlignment="Right" Margin="3" Click="NewAliasButton_Click">
+                <Image Source="/Assets/server_key.png" />
             </Button>
         </DockPanel>
         <DockPanel DockPanel.Dock="Bottom" Height="24" Background="LightGray" LastChildFill="False">

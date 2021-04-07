@@ -122,13 +122,13 @@ namespace MyMNGR
             actionFunction();
         }
 
-        private void FileNew_Click(object sender, RoutedEventArgs e)
+        private void NewProfile_Click(object sender, RoutedEventArgs e)
         {
             _profilePanel.Reset();
             SwitchVisiblePanel(_profilePanel);
         }
 
-        private void FileLoad_Click(object sender, RoutedEventArgs e)
+        private void LoadProfile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.InitialDirectory = _settingsManager.ProfileFolder;
@@ -169,6 +169,21 @@ namespace MyMNGR
             CloseVisiblePanel();
         }
 
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SaveAsButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void DeployButton_Click(object sender, RoutedEventArgs e)
         {
             ProductionConfirmation("deploy", () => _mySqlManager.DeployDatabase());
@@ -197,6 +212,11 @@ namespace MyMNGR
         private void ForceRestoreButton_Click(object sender, RoutedEventArgs e)
         {
             ProductionConfirmation("force restore", () => _mySqlManager.ForceRestoreDatabase());
+        }
+
+        private void NewAliasButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         private void SwitchTargetButton_Click(object sender, RoutedEventArgs e)
