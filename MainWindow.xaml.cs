@@ -42,6 +42,8 @@ namespace MyMNGR
 
         private ProfilePanel _profilePanel;
 
+        private AliasPanel _aliasPanel;
+
         private UserControl _visiblePanel;
 
         public bool ProfileLoaded { get { return _settingsManager.CurrentProfile != null; } }
@@ -54,9 +56,14 @@ namespace MyMNGR
             _consoleManager = new ConsoleManager(_consoleWindow);
             _fileManager = new FileManager();
             _settingsManager = new SettingsManager();
+
             _profilePanel = new ProfilePanel();
-            _profilePanel.Cancel += ProfilePanel_Cancel;
+            _profilePanel.Cancel += Panel_Cancel;
             _profilePanel.Save += ProfilePanel_Save;
+
+            _aliasPanel = new AliasPanel();
+            _aliasPanel.Cancel += Panel_Cancel;
+            _aliasPanel.Save += AliasPanel_Save;
 
             UpdateButtons();
             UpdateTargetLabel();
@@ -64,17 +71,13 @@ namespace MyMNGR
 
         private void CloseVisiblePanel()
         {
-            if (_visiblePanel != null)
-            {
-                _visiblePanel.Visibility = Visibility.Hidden;
-            }
             _mainContent.Children.Clear();
         }
 
         private void SwitchVisiblePanel(UserControl newPanel)
         {
             _visiblePanel = newPanel;
-            _mainContent.Children.Add(_profilePanel);
+            _mainContent.Children.Add(newPanel);
         }
 
         private void UpdateButtons()
@@ -85,6 +88,8 @@ namespace MyMNGR
             _backupButton.IsEnabled = ProfileLoaded;
             _restoreButton.IsEnabled = ProfileLoaded;
             _forceRestoreButton.IsEnabled = ProfileLoaded && ForceActionsEnabled;
+            _newAliasButton.IsEnabled = ProfileLoaded;
+            _switchTargetButton.IsEnabled = ProfileLoaded;
         }
 
         private void UpdateTargetLabel()
@@ -150,7 +155,7 @@ namespace MyMNGR
             }
         }
 
-        private void ProfilePanel_Cancel(object sender, EventArgs e)
+        private void Panel_Cancel(object sender, EventArgs e)
         {
             CloseVisiblePanel();
         }
@@ -166,6 +171,12 @@ namespace MyMNGR
             {
                 _consoleManager.LogMessage($"Failed to save a profile for '{newProfile.Name}'");
             }
+            CloseVisiblePanel();
+        }
+
+        private void AliasPanel_Save(object sender, Alias newAlias)
+        {
+            _mySqlManager.SetAlias(newAlias);
             CloseVisiblePanel();
         }
 
@@ -216,7 +227,8 @@ namespace MyMNGR
 
         private void NewAliasButton_Click(object sender, RoutedEventArgs e)
         {
-
+            _aliasPanel.Reset();
+            SwitchVisiblePanel(_aliasPanel);
         }
 
         private void SwitchTargetButton_Click(object sender, RoutedEventArgs e)

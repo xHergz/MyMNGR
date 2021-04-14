@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>database_connect.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HergBotSqlParser, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\HergBot.SqlParser.1.0.2\lib\netstandard2.0\HergBotSqlParser.dll</HintPath>
@@ -153,6 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\server_key.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="database_connect.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -113,6 +113,19 @@ namespace MyMNGR.Utils
             return PerformDatabaseAction(DbName, true, RestoreDatabase);
         }
 
+        public bool SetAlias(Alias alias)
+        {
+            ProcessResult result = RunConfigEditor(ConfigEditorAction.Set, alias.ToArgs());
+            if (!result.Success)
+            {
+                _consoleManager.LogMessage($"Failed to set alias {alias.Name}");
+                _consoleManager.LogMessage(result.Error);
+                return false;
+            }
+            _consoleManager.LogMessage($"Successfully set alias {alias.Name}");
+            return true;
+        }
+
         private bool PerformDatabaseAction(string databaseName, bool force, DatabaseAction action = null)
         {
             // Check if the current alias exists
@@ -321,7 +334,10 @@ namespace MyMNGR.Utils
 
         private ProcessResult RunConfigEditor(ConfigEditorAction action, string args)
         {
-            return RunProcess(MYSQL_CONFIG_EDITOR, $"{action.ToString("G").ToLower()} {args}");
+            string fullArguments = $"{action.ToString("G").ToLower()} {args}";
+            return action == ConfigEditorAction.Set
+                ? RunCommand(MYSQL_CONFIG_EDITOR, fullArguments)
+                : RunProcess(MYSQL_CONFIG_EDITOR, fullArguments);
         }
 
         private string BackupFolder(string databaseName)
@@ -359,10 +375,6 @@ namespace MyMNGR.Utils
         private ProcessResult RunCommand(string fileName, string arguments)
         {
             Process process = new Process();
-            process.StartInfo.UseShellExecute = true;
-            process.StartInfo.RedirectStandardOutput = false;
-            process.StartInfo.RedirectStandardError = false;
-            process.StartInfo.CreateNoWindow = false;
             process.StartInfo.FileName = fileName;
             process.StartInfo.Arguments = arguments;
             process.Start();
