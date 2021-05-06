@@ -148,6 +148,12 @@ namespace MyMNGR.Utils
         private bool CreateDatabase(string databaseName)
         {
             ProcessResult result = RunSqlCommand($"CREATE DATABASE IF NOT EXISTS {databaseName};");
+            if (!result.Success)
+            {
+                _consoleManager.LogMessage("Failed to create the database.");
+                _consoleManager.LogMessage(result.Error);
+                return false;
+            }
             return result.Success;
         }
 
@@ -180,7 +186,6 @@ namespace MyMNGR.Utils
             // Create database
             if (!CreateDatabase(databaseName))
             {
-                _consoleManager.LogMessage("Failed to create the database.");
                 return false;
             }
 
