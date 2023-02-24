@@ -189,13 +189,15 @@ namespace MyMNGR.Utils
                 return false;
             }
 
+            IEnumerable<string> orderedTables = GetOrderedTables();
+
             // Call each file in order: Tables, Views, Functions, Stored Procs, Data
             IEnumerable<string> orderedFiles = new List<string>()
-                .Concat(GetOrderedTables())
+                .Concat(orderedTables)
                 .Concat(_fileManager.Views)
                 .Concat(_fileManager.Functions)
                 .Concat(_fileManager.StoredProcedures)
-                .Concat(_fileManager.Data);
+                .Concat(GetOrderedData(orderedTables));
 
             foreach (string filePath in orderedFiles)
             {
@@ -433,6 +435,24 @@ namespace MyMNGR.Utils
             }
 
             return tableOrder.Values;
+        }
+
+        private IEnumerable<string> GetOrderedData(IEnumerable<string> orderedTables)
+        {
+            //return orderedTables.Where(x => _fileManager.Data.Contains($"{x}Data.sql"));
+            List<string> orderedData = new List<string>();
+
+            foreach(string table in orderedTables)
+            {
+                string dataFilePath = table.Replace("\\Tables\\", "\\Data\\").Replace(".sql", "Data.sql");
+                string dataFile = _fileManager.Data.FirstOrDefault(x => x == dataFilePath);
+                if (dataFile != null)
+                {
+                    orderedData.Add(dataFile);
+                }
+            }
+
+            return orderedData;
         }
     }
 }
